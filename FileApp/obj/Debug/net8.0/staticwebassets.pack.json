@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/en/Documents/projects/FileApp/FileApp/obj/Debug/net8.0/scopedcss/projectbundle/FileApp.bundle.scp.css",
+      "PackagePath": "staticwebassets/FileApp.bundle.scp.css"
+    },
+    {
+      "Id": "/Users/en/Documents/projects/FileApp/FileApp/wwwroot/app.css",
+      "PackagePath": "staticwebassets/app.css"
+    },
+    {
+      "Id": "/Users/en/Documents/projects/FileApp/FileApp/wwwroot/bootstrap/bootstrap.min.css",
+      "PackagePath": "staticwebassets/bootstrap/bootstrap.min.css"
+    },
+    {
+      "Id": "/Users/en/Documents/projects/FileApp/FileApp/wwwroot/bootstrap/bootstrap.min.css.map",
+      "PackagePath": "staticwebassets/bootstrap/bootstrap.min.css.map"
+    },
+    {
+      "Id": "/Users/en/Documents/projects/FileApp/FileApp/wwwroot/favicon.png",
+      "PackagePath": "staticwebassets/favicon.png"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.FileApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.FileApp.props",
+      "PackagePath": "build\\FileApp.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.FileApp.props",
+      "PackagePath": "buildMultiTargeting\\FileApp.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.FileApp.props",
+      "PackagePath": "buildTransitive\\FileApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
