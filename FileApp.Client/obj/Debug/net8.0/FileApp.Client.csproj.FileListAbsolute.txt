@@ -1026,3 +1026,4 @@
 /Users/en/Documents/projects/FileApp/FileApp.Client/obj/Debug/net8.0/refint/FileApp.Client.dll
 /Users/en/Documents/projects/FileApp/FileApp.Client/obj/Debug/net8.0/FileApp.Client.pdb
 /Users/en/Documents/projects/FileApp/FileApp.Client/obj/Debug/net8.0/ref/FileApp.Client.dll
+/Users/en/Documents/projects/FileApp/FileApp.Client/obj/Debug/net8.0/FileApp.Client.sourcelink.json

@@ -56,3 +56,4 @@
 /Users/en/Documents/projects/FileApp/FileApp/obj/Debug/net8.0/FileApp.pdb
 /Users/en/Documents/projects/FileApp/FileApp/obj/Debug/net8.0/FileApp.genruntimeconfig.cache
 /Users/en/Documents/projects/FileApp/FileApp/obj/Debug/net8.0/ref/FileApp.dll
+/Users/en/Documents/projects/FileApp/FileApp/obj/Debug/net8.0/FileApp.sourcelink.json
