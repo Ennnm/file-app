@@ -8,58 +8,93 @@
 <PageTitle>File Name Modification</PageTitle>
 
 <h1>File Upload</h1>
+<div class="">
+    <p>Upload up to @maxAllowedFiles of up to @maxFileSize bytes:</p>
+    <div class="form-group mb-3">
+        <label for="fileInput" class="input-group-text">
+            Choose File(s)
+            <InputFile id="fileInput" OnChange="@LoadFiles" multiple style="display: none;" />
+        </label>
+    </div>
+</div>
 
-<p>
-<p>Upload up to @maxAllowedFiles of up to @maxFileSize bytes:</p>
-<label>
-    <InputFile OnChange="@LoadFiles" multiple />
-</label>
-</p>
 
 @if (loadedFiles.Count > 0)
 {
-    <select name="operation" id="operations" @bind="selectedOperation">
-    @foreach (Operation op in @operationsValue)
-        {
-            <option value=@op>@GetReadableOperation(@op)</option>
-        }
-    </select>
 
-    @if (RequiresFrom(selectedOperation))
+    <div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <label class="input-group-text" for="operations">Options</label>
+    </div>
+    <select class="form-control" id="operations" @bind="selectedOperation">
+        @foreach (Operation op in @operationsValue)
+            {
+                <option value=@op>@GetReadableOperation(@op) </option>
+            }
+        </select>
+    </div>
+    @if (RequiresFrom(selectedOperation) && RequiresTo(selectedOperation))
     {
-        <p>
-    <label>
-        From:
-        <input type="text" @bind="from" />
-    </label>
-</p>
+        <div class="input-group">
+    <div class="input-group-prepend">
+
+        <span class="input-group-text" id="">From and to</span>
+    </div>
+    <input type="text" class="form-control" @bind:"from" @bind:event="oninput">
+    <input type="text" class="form-control" @bind:"to" @bind:event="oninput">
+</div>
     }
-    @if (RequiresTo(selectedOperation))
+    else
     {
-        <p>
-    <label>
-        To:
-        <input type="text" @bind="to" />
-    </label>
-</p>
+        @if (RequiresFrom(selectedOperation))
+        {
+            <div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">From</span>
+    </div>
+    <input type="text" @bind="from" @bind:event="oninput" class="form-control" aria-label="Default"
+        aria-describedby="inputGroup-sizing-default">
+</div>
+
+        }
+        @if (RequiresTo(selectedOperation))
+        {
+            <div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-default">To</span>
+    </div>
+    <input type="text" @bind="to" @bind:event="oninput" class="form-control" aria-label="Default"
+        aria-describedby="inputGroup-sizing-default">
+</div>
+
+        }
+
     }
+
+
+
     @if (isLoading)
     {
         <p>Uploading...</p>
     }
     else
     {
-        <ul>
+        <ul class="list-group list-group-flush mb-3">
     @foreach (var file in loadedFiles)
             {
-                <li>@(file.TempName ?? file.File.Name)</li>
+                <li class="list-group-item">@(file.TempName ?? file.File.Name)</li>
             }
         </ul>
-        <button @onclick="ChangeTempNames">Change file names</button>
-        <button @onclick="ResetNames">Reset names</button>
-        <button @onclick="DownloadAllFiles">Download All Files</button>
+        @if (@from != null || @to != null)
+        {
+            <button @onclick="ChangeTempNames" class="btn btn-success">Change file names</button>
+        }
+        @if (hasBeenChanged)
+        {
+            <button @onclick="ResetNames" class="btn btn-light">Reset names</button>
+            <button @onclick="DownloadAllFiles" class="btn btn-success">Download All Files</button>
+        }
     }
-
 }
 
 <script>
@@ -104,6 +139,7 @@
     private string? from;
     private string? to;
 
+    private bool hasBeenChanged = false;
     Operation[] operationsValue = Enum.GetValues<Operation>();
 
     private void LoadFiles(InputFileChangeEventArgs e)
@@ -200,6 +236,7 @@
 
     private void ChangeTempNames()
     {
+        hasBeenChanged = true;
         Logger.LogInformation("Changing names");
         Func<string, string, string> fn = getOperationFn(selectedOperation);
         Logger.LogInformation(to);
@@ -211,10 +248,13 @@
             file.TempName = newName;
             Logger.LogInformation(file.TempName);
         }
+        from = null;
+        to = null;
     }
 
     private void ResetNames()
     {
+        hasBeenChanged = false;
         foreach (CustomBrowserFile f in loadedFiles)
         {
             f.TempName = null;
