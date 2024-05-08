@@ -56,17 +56,11 @@
             }
         </ul>
         <button @onclick="ChangeTempNames">Change file names</button>
+        <button @onclick="ResetNames">Reset names</button>
         <button @onclick="DownloadAllFiles">Download All Files</button>
     }
 
 }
-
-
-@* add drop down for showing options *@
-@* add input field for change *@
-@* add change button for applying superficial changes *@
-@* add bootstrap *@
-
 
 <script>
     window.downloadFileFromStream = async (fileName, contentStreamReference) => {
@@ -110,8 +104,6 @@
     private string? from;
     private string? to;
 
-
-
     Operation[] operationsValue = Enum.GetValues<Operation>();
 
     private void LoadFiles(InputFileChangeEventArgs e)
@@ -134,11 +126,10 @@
 
         isLoading = false;
     }
-    private async Task DownloadFile(IBrowserFile file)
+    private async Task DownloadFile(CustomBrowserFile file)
     {
-        Logger.LogInformation("data", @maxFileSize);
-        var stream = file.OpenReadStream(@maxFileSize);
-        var fileName = file.Name;
+        var stream = file.File.OpenReadStream(@maxFileSize);
+        var fileName = file.TempName ?? file.File.Name;
 
         using var streamRef = new DotNetStreamReference(stream: stream);
         await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
@@ -148,8 +139,7 @@
     {
         foreach (var file in loadedFiles)
         {
-            Logger.LogError(file.File.Name);
-            await DownloadFile(file.File);
+            await DownloadFile(file);
         }
     }
 
@@ -235,9 +225,4 @@
             f.TempName = null;
         }
     }
-    // filename manipulation
-    // TODO save list of original fileNames k->v
-    // Apply modifications to the file names k-> new value
-    // Show new names in the file list
-    // On download, return the files with the new names
 }
