@@ -9,12 +9,14 @@
       "FileApp/1.0.0": {
         "dependencies": {
           "FileApp.Client": "1.0.0",
-          "Microsoft.AspNetCore.Components.WebAssembly.Server": "8.0.4"
+          "Microsoft.AspNetCore.Components.WebAssembly.Server": "8.0.4",
+          "bootstrap": "5.3.3"
         },
         "runtime": {
           "FileApp.dll": {}
         }
       },
+      "bootstrap/5.3.3": {},
       "Microsoft.AspNetCore.Authorization/8.0.4": {
         "dependencies": {
           "Microsoft.AspNetCore.Metadata": "8.0.4",
@@ -237,6 +239,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "bootstrap/5.3.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iQohLXwneNPDyW4x24mKQ90qGwT5WTtNl3KybL0koTluJPjKYxFCU/NTLHsJiWR2n7VmnwcpAgr8TR42KNmPOg==",
+      "path": "bootstrap/5.3.3",
+      "hashPath": "bootstrap.5.3.3.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authorization/8.0.4": {
       "type": "package",

@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "BBjuo8QfcMWwioqO+wHsyEthJQKGUGAEpmfQXNZ2XZ9H6G7vQGqiVN8hoNm8sbBBZy2wrLeEJNqfITEkfwOrcA==",
+  "dgSpecHash": "dwMBYnCmMWg+PCHayK3wRBtEBFiw7Mk8w9e9sPiaIYKqHKjHsSBen4EQ6iA5vlqasWrW5a/M1xw7kS24dbBWxQ==",
   "success": true,
   "projectFilePath": "/Users/en/Documents/projects/FileApp/FileApp/FileApp.csproj",
   "expectedPackageFiles": [
+    "/Users/en/.nuget/packages/bootstrap/5.3.3/bootstrap.5.3.3.nupkg.sha512",
     "/Users/en/.nuget/packages/microsoft.aspnetcore.authorization/8.0.4/microsoft.aspnetcore.authorization.8.0.4.nupkg.sha512",
     "/Users/en/.nuget/packages/microsoft.aspnetcore.components/8.0.4/microsoft.aspnetcore.components.8.0.4.nupkg.sha512",
     "/Users/en/.nuget/packages/microsoft.aspnetcore.components.analyzers/8.0.4/microsoft.aspnetcore.components.analyzers.8.0.4.nupkg.sha512",
