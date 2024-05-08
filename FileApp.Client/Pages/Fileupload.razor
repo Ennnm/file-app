@@ -21,7 +21,7 @@
     <select name="operation" id="operations" @bind="selectedOperation">
     @foreach (Operation op in @operationsValue)
         {
-            <option value=@op>@getReadableOperation(@op)</option>
+            <option value=@op>@GetReadableOperation(@op)</option>
         }
     </select>
 
@@ -173,7 +173,7 @@
                 return false;
         }
     }
-    private string getReadableOperation(Operation operation)
+    private string GetReadableOperation(Operation operation)
     {
         switch (operation)
         {
@@ -196,11 +196,6 @@
             default:
                 return (_, _) => "";
         }
-    }
-    private void updateTo(ChangeEventArgs e)
-    {
-        Logger.LogInformation("Update to", to);
-        to = e?.Value?.ToString();
     }
 
     private void ChangeTempNames()
