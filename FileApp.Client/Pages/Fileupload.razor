@@ -1,58 +1,118 @@
 @page "/file-upload"
 @rendermode InteractiveAuto
 @inject ILogger<Fileupload> Logger
+@using System.IO
+@using System.Text.RegularExpressions
+@inject IJSRuntime JS
 
-<PageTitle>File Upload 1</PageTitle>
+<PageTitle>File Name Modification</PageTitle>
 
-<h1>File Upload Example 1</h1>
-
-<p>
-    <label>
-        Max file size:
-        <input type="number" @bind="maxFileSize" />
-    </label>
-</p>
+<h1>File Upload</h1>
 
 <p>
-    <label>
-        Max allowed files:
-        <input type="number" @bind="maxAllowedFiles" />
-    </label>
+<p>Upload up to @maxAllowedFiles of up to @maxFileSize bytes:</p>
+<label>
+    <InputFile OnChange="@LoadFiles" multiple />
+</label>
 </p>
 
-<p>
-    <label>
-        Upload up to @maxAllowedFiles of up to @maxFileSize bytes:
-        <InputFile OnChange="@LoadFiles" multiple />
-    </label>
-</p>
-
-@if (isLoading)
+@if (loadedFiles.Count > 0)
 {
-    <p>Uploading...</p>
-}
-else
-{
-    <ul>
-    @foreach (var file in loadedFiles)
+    <select name="operation" id="operations" @bind="selectedOperation">
+    @foreach (Operation op in @operationsValue)
         {
-            <li>
-                <ul>
-                    <li>Name: @file.Name</li>
-                    <li>Last modified: @file.LastModified.ToString()</li>
-                    <li>Size (bytes): @file.Size</li>
-                    <li>Content type: @file.ContentType</li>
-                </ul>
-            </li>
+            <option value=@op>@getReadableOperation(@op)</option>
         }
-    </ul>
+    </select>
+
+    @if (RequiresFrom(selectedOperation))
+    {
+        <p>
+    <label>
+        From:
+        <input type="text" @bind="from" />
+    </label>
+</p>
+    }
+    @if (RequiresTo(selectedOperation))
+    {
+        <p>
+    <label>
+        To:
+        <input type="text" @bind="to" />
+    </label>
+</p>
+    }
+    @if (isLoading)
+    {
+        <p>Uploading...</p>
+    }
+    else
+    {
+        <ul>
+    @foreach (var file in loadedFiles)
+            {
+                <li>@(file.TempName ?? file.File.Name)</li>
+            }
+        </ul>
+        <button @onclick="ChangeTempNames">Change file names</button>
+        <button @onclick="DownloadAllFiles">Download All Files</button>
+    }
+
 }
+
+
+@* add drop down for showing options *@
+@* add input field for change *@
+@* add change button for applying superficial changes *@
+@* add bootstrap *@
+
+
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
+    }
+</script>
 
 @code {
-    private List<IBrowserFile> loadedFiles = new();
-    private long maxFileSize = 1024 * 15;
-    private int maxAllowedFiles = 3;
+    enum Operation
+    {
+        changeFileExt,
+        addPrefix,
+        addSuffix,
+        addNumbering,
+        removeNCharFromStart,
+        removeNCharFromEnd,
+        removeDoubleSpace,
+        removeCharsFromList,
+        replaceText,
+        transformWithRegex,
+        covertToLowercase,
+        covertToUppercase,
+        appendDateModified,
+        appendDateAccessed,
+    }
+    private List<CustomBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 2000;
+    @* private long maxFileSize = 1024 * 15; *@
+    private int maxAllowedFiles = 10;
     private bool isLoading;
+    private Operation selectedOperation = Operation.changeFileExt;
+
+    private string? from;
+    private string? to;
+
+
+
+    Operation[] operationsValue = Enum.GetValues<Operation>();
 
     private void LoadFiles(InputFileChangeEventArgs e)
     {
@@ -63,8 +123,7 @@ else
         {
             try
             {
-                loadedFiles.Add(file);
-
+                loadedFiles.Add(new CustomBrowserFile(file));
             }
             catch (Exception ex)
             {
@@ -75,4 +134,110 @@ else
 
         isLoading = false;
     }
+    private async Task DownloadFile(IBrowserFile file)
+    {
+        Logger.LogInformation("data", @maxFileSize);
+        var stream = file.OpenReadStream(@maxFileSize);
+        var fileName = file.Name;
+
+        using var streamRef = new DotNetStreamReference(stream: stream);
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+
+    private async Task DownloadAllFiles()
+    {
+        foreach (var file in loadedFiles)
+        {
+            Logger.LogError(file.File.Name);
+            await DownloadFile(file.File);
+        }
+    }
+
+
+    private String ChangeFileExt(string input, string replacement)
+    {
+        Logger.LogInformation("change file ext", input, replacement);
+        var pattern = @"(\.[^.]+)$";
+        return Regex.Replace(input, pattern, $".{replacement}");
+    }
+
+    private bool RequiresFrom(Operation operation)
+    {
+        switch (operation)
+        {
+            case Operation.changeFileExt:
+            case Operation.addPrefix:
+                return false;
+            default:
+                return false;
+        }
+    }
+    private bool RequiresTo(Operation operation)
+    {
+        switch (operation)
+        {
+            case Operation.changeFileExt:
+            case Operation.addPrefix:
+                return true;
+            default:
+                return false;
+        }
+    }
+    private string getReadableOperation(Operation operation)
+    {
+        switch (operation)
+        {
+            case Operation.changeFileExt:
+                return "Change file extension";
+            case Operation.addPrefix:
+                return "Add prefix";
+            default:
+                return "Whatever";
+        }
+    }
+    private Func<string, string, string> getOperationFn(Operation operation)
+    {
+        switch (operation)
+        {
+            case Operation.changeFileExt:
+                return ChangeFileExt;
+            case Operation.addPrefix:
+                return ChangeFileExt;
+            default:
+                return (_, _) => "";
+        }
+    }
+    private void updateTo(ChangeEventArgs e)
+    {
+        Logger.LogInformation("Update to", to);
+        to = e?.Value?.ToString();
+    }
+
+    private void ChangeTempNames()
+    {
+        Logger.LogInformation("Changing names");
+        Func<string, string, string> fn = getOperationFn(selectedOperation);
+        Logger.LogInformation(to);
+        foreach (CustomBrowserFile file in loadedFiles)
+        {
+            string name = file.TempName ?? file.File.Name;
+            string newName = fn(name, to ?? "");
+            Logger.LogInformation(newName);
+            file.TempName = newName;
+            Logger.LogInformation(file.TempName);
+        }
+    }
+
+    private void ResetNames()
+    {
+        foreach (CustomBrowserFile f in loadedFiles)
+        {
+            f.TempName = null;
+        }
+    }
+    // filename manipulation
+    // TODO save list of original fileNames k->v
+    // Apply modifications to the file names k-> new value
+    // Show new names in the file list
+    // On download, return the files with the new names
 }
