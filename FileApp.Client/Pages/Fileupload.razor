@@ -111,7 +111,6 @@
 @code {
     private List<CustomBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 2000;
-    @* private long maxFileSize = 1024 * 15; *@
     private int maxAllowedFiles = 10;
     private bool isLoading;
     private StringHelper.Operation selectedOperation = StringHelper.Operation.changeFileExt;
@@ -131,12 +130,15 @@
         {
             try
             {
-                loadedFiles.Add(new CustomBrowserFile(file));
+                if (file.Size <= maxFileSize)
+                {
+                    loadedFiles.Add(new CustomBrowserFile(file));
+                }
+                // TODO: should throw error if exceeded
             }
             catch (Exception ex)
             {
-                Logger.LogError("File: {FileName} Error: {Error}",
-                file.Name, ex.Message);
+                Logger.LogError($"File: {file.Name} Error: ", ex.Message);
             }
         }
 
@@ -163,15 +165,13 @@
     {
         hasBeenChanged = true;
         Logger.LogInformation("Changing names");
-        Func<string, string, string> fn = StringHelper.GetOperationFn(selectedOperation);
-        Logger.LogInformation(to);
-        foreach (CustomBrowserFile file in loadedFiles)
+        var fn = StringHelper.GetOperationFn(selectedOperation);
+        for (int i = 0; i < loadedFiles.Count; i++)
         {
+            var file = loadedFiles[i];
             string name = file.TempName ?? file.File.Name;
-            string newName = fn(name, to ?? "");
-            Logger.LogInformation(newName);
+            string newName = fn(name, to ?? "", from ?? "", i);
             file.TempName = newName;
-            Logger.LogInformation(file.TempName);
         }
         from = null;
         to = null;
@@ -185,8 +185,4 @@
             f.TempName = null;
         }
     }
-
-    // TODO: refactor to separate name operations into a separate file
-    // Make checks for the size and number of files uploaded
-    // Deploy
 }
