@@ -1,9 +1,10 @@
 @page "/file-upload"
 @rendermode InteractiveAuto
 @inject ILogger<Fileupload> Logger
+@inject IJSRuntime JS
 @using System.IO
 @using System.Text.RegularExpressions
-@inject IJSRuntime JS
+@using FileApp.Client.Helpers
 
 <PageTitle>File Name Modification</PageTitle>
 
@@ -27,13 +28,13 @@
         <label class="input-group-text" for="operations">Options</label>
     </div>
     <select class="form-control" id="operations" @bind="selectedOperation">
-        @foreach (Operation op in @operationsValue)
+        @foreach (StringHelper.Operation op in @operationsValue)
             {
-                <option value=@op>@GetReadableOperation(@op) </option>
+                <option value=@op>@StringHelper.GetReadableOperation(@op) </option>
             }
         </select>
     </div>
-    @if (RequiresFrom(selectedOperation) && RequiresTo(selectedOperation))
+    @if (StringHelper.RequiresFrom(selectedOperation) && StringHelper.RequiresTo(selectedOperation))
     {
         <div class="input-group">
     <div class="input-group-prepend">
@@ -46,7 +47,7 @@
     }
     else
     {
-        @if (RequiresFrom(selectedOperation))
+        @if (StringHelper.RequiresFrom(selectedOperation))
         {
             <div class="input-group mb-3">
     <div class="input-group-prepend">
@@ -57,7 +58,7 @@
 </div>
 
         }
-        @if (RequiresTo(selectedOperation))
+        @if (StringHelper.RequiresTo(selectedOperation))
         {
             <div class="input-group mb-3">
     <div class="input-group-prepend">
@@ -68,11 +69,7 @@
 </div>
 
         }
-
     }
-
-
-
     @if (isLoading)
     {
         <p>Uploading...</p>
@@ -112,35 +109,18 @@
 </script>
 
 @code {
-    enum Operation
-    {
-        changeFileExt,
-        addPrefix,
-        addSuffix,
-        addNumbering,
-        removeNCharFromStart,
-        removeNCharFromEnd,
-        removeDoubleSpace,
-        removeCharsFromList,
-        replaceText,
-        transformWithRegex,
-        covertToLowercase,
-        covertToUppercase,
-        appendDateModified,
-        appendDateAccessed,
-    }
     private List<CustomBrowserFile> loadedFiles = new();
     private long maxFileSize = 1024 * 2000;
     @* private long maxFileSize = 1024 * 15; *@
     private int maxAllowedFiles = 10;
     private bool isLoading;
-    private Operation selectedOperation = Operation.changeFileExt;
+    private StringHelper.Operation selectedOperation = StringHelper.Operation.changeFileExt;
 
     private string? from;
     private string? to;
 
     private bool hasBeenChanged = false;
-    Operation[] operationsValue = Enum.GetValues<Operation>();
+    StringHelper.Operation[] operationsValue = Enum.GetValues<StringHelper.Operation>();
 
     private void LoadFiles(InputFileChangeEventArgs e)
     {
@@ -179,66 +159,11 @@
         }
     }
 
-
-    private String ChangeFileExt(string input, string replacement)
-    {
-        Logger.LogInformation("change file ext", input, replacement);
-        var pattern = @"(\.[^.]+)$";
-        return Regex.Replace(input, pattern, $".{replacement}");
-    }
-
-    private bool RequiresFrom(Operation operation)
-    {
-        switch (operation)
-        {
-            case Operation.changeFileExt:
-            case Operation.addPrefix:
-                return false;
-            default:
-                return false;
-        }
-    }
-    private bool RequiresTo(Operation operation)
-    {
-        switch (operation)
-        {
-            case Operation.changeFileExt:
-            case Operation.addPrefix:
-                return true;
-            default:
-                return false;
-        }
-    }
-    private string GetReadableOperation(Operation operation)
-    {
-        switch (operation)
-        {
-            case Operation.changeFileExt:
-                return "Change file extension";
-            case Operation.addPrefix:
-                return "Add prefix";
-            default:
-                return "Whatever";
-        }
-    }
-    private Func<string, string, string> getOperationFn(Operation operation)
-    {
-        switch (operation)
-        {
-            case Operation.changeFileExt:
-                return ChangeFileExt;
-            case Operation.addPrefix:
-                return ChangeFileExt;
-            default:
-                return (_, _) => "";
-        }
-    }
-
     private void ChangeTempNames()
     {
         hasBeenChanged = true;
         Logger.LogInformation("Changing names");
-        Func<string, string, string> fn = getOperationFn(selectedOperation);
+        Func<string, string, string> fn = StringHelper.GetOperationFn(selectedOperation);
         Logger.LogInformation(to);
         foreach (CustomBrowserFile file in loadedFiles)
         {
@@ -260,4 +185,8 @@
             f.TempName = null;
         }
     }
+
+    // TODO: refactor to separate name operations into a separate file
+    // Make checks for the size and number of files uploaded
+    // Deploy
 }
